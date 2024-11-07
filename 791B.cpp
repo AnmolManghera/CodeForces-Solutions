@@ -4,23 +4,20 @@
 using namespace std;
 
 int main(){
-	// int t;
-	// cin>>t;
-	// while(t--){
-		
-	// }
-	int n,q;
+	long long n,q;
 	cin>>n>>q;
-	unordered_map<int,int>ump;
+	vector<int>vec(n+1,0);
 
 	long long setSum = 0;
 	for(int i = 1 ; i <= n ; i++){
 		int no;
 		cin>>no;
-		ump[i] = no;
+		vec[i] = no;
 		setSum += no;
 	}
-	int lastAll = 0;
+	long long lastAll = 0;
+	vector<int>isUpdated(n+1,1);
+	int currUpdated = 1, currMax = 1;
 	while(q--){
 		int type;
 		cin>>type;
@@ -29,21 +26,39 @@ int main(){
 			int idx, no;
 			cin>>idx>>no;
 
-			if(ump.find(idx) != ump.end()){
-				setSum -= ump[idx];
+			if(currUpdated == -1){
+				//new series is starting
+				currUpdated = currMax + 1;
+				isUpdated[idx] = currUpdated;
+				currMax = currUpdated;
+				vec[idx] = no;
+				setSum -= lastAll;
+				setSum += vec[idx];
 			}
-			ump[idx] = no;
-			setSum += ump[idx];
+			else if(isUpdated[idx] >= currUpdated){
+				isUpdated[idx]++;
+				currMax = max(isUpdated[idx],currMax);
+				setSum -= vec[idx];
+				vec[idx] = no;
+				setSum += vec[idx];
+			}
+			else{
+				setSum -= lastAll;
+				vec[idx] = no;
+				setSum += vec[idx];
+				isUpdated[idx] = currMax;
+			}
 		}	
 		else{
-			int no;
+			long long no;
 			cin>>no;
-			ump.clear();
-			lastAll = no;
-			setSum = 0;
-		}
 
-		cout<<(lastAll*(n - ump.size()) + setSum)<<endl;
+			currUpdated = -1;
+			lastAll = no;
+
+			setSum = lastAll*n;
+		}
+		cout<<setSum<<endl;
 	}
 
 }
